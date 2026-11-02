@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CYBER MISSION - The Last Message</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#081426;color:#f1f5ff;
+ font-family:Arial,sans-serif;min-height:100vh
+}
+header{
+ background:linear-gradient(130deg,#10264d,#075b78);
+ padding:35px 18px;text-align:center;
+ border-bottom:2px solid #27a9df
+}
+header .tag{font-size:12px;letter-spacing:4px;color:#8bdcff}
+h1{font-size:clamp(30px,7vw,48px);margin:12px 0 4px;font-weight:900}
+header p{color:#c4eaff;margin:8px}
+main{max-width:650px;margin:auto;padding:18px}
+.card{
+ background:#14243b;border:1px solid #2d4866;
+ padding:22px;border-radius:18px;margin:16px 0;
+ box-shadow:0 8px 25px #0003
+}
+h2{margin-top:0}
+input{
+ width:100%;padding:15px;border-radius:10px;
+ border:1px solid #526e8b;background:#091426;
+ color:white;font-size:16px;margin:12px 0
+}
+button{
+ cursor:pointer;border:0;border-radius:11px;
+ padding:15px;font-size:15px;font-weight:bold;
+ width:100%;background:#1689df;color:white;
+ margin-top:10px
+}
+button:disabled{opacity:.4;cursor:not-allowed}
+.option{
+ background:#203650;border:1px solid #49617d;
+ color:white;text-align:left;margin:7px 0;
+ padding:16px;line-height:1.4
+}
+.option.selected{background:#145078;border:2px solid #51c5ff}
+.option:focus,button:focus,input:focus{outline:2px solid #7dd3fc;outline-offset:2px}
+.small{font-size:13px;color:#a9bfd6;line-height:1.5}
+.hidden{display:none!important}
+.topline{display:flex;justify-content:space-between;gap:10px;color:#9ddcff;font-size:13px}
+.progress{height:8px;background:#34445a;border-radius:10px;margin:14px 0;overflow:hidden}
+.fill{height:100%;background:#26b9a0;width:0%;transition:.3s}
+.feedback{padding:15px;background:#173d37;border-radius:12px;margin-top:15px;line-height:1.5}
+footer{text-align:center;color:#8298b2;font-size:12px;padding:25px}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="tag">DIGITAL INVESTIGATION</div>
+ <h1>🔐 CYBER MISSION</h1>
+ <p>THE LAST MESSAGE</p>
+ <p>5 missioni · 1 mistero · 1 grande sfida</p>
+</header>
+
+<main>
+ <section id="welcome" class="card">
+  <h2>Benvenuto, agente! 🕵️</h2>
+  <p>Un messaggio misterioso è comparso nella chat della scuola.</p>
+  <p>Qualcuno sta subendo attacchi online. Dobbiamo scoprire cosa è successo e fermare il cyberbullismo.</p>
+  <p class="small">Per partecipare non servono nome, cognome o email. Scegli un nickname inventato.</p>
+  <input id="nickname" maxlength="18" placeholder="Es. CyberFox27">
+  <button onclick="startGame()">ENTRA NELLA MISSIONE 🚀</button>
+ </section>
+
+ <section id="game" class="card hidden">
+  <div class="topline">
+   <span id="mission">MISSIONE 01</span>
+   <span id="counter">1 / 5</span>
+  </div>
+  <div class="progress"><div class="fill" id="progress"></div></div>
+  <p class="small">AGENTE: <span id="agent"></span></p>
+  <h2 id="title"></h2>
+  <p id="question"></p>
+  <div id="options"></div>
+  <button id="send" onclick="submitAnswer()" disabled>INVIA RISPOSTA</button>
+  <div id="feedback" aria-live="polite"></div>
+  <button id="next" class="hidden" onclick="nextQuestion()">PROSSIMA MISSIONE ➜</button>
+ </section>
+
+ <section id="finish" class="card hidden">
+  <h2>🏆 MISSIONE COMPLETATA!</h2>
+  <p>Agente, hai completato tutte le sfide di CYBER MISSION.</p>
+  <h2 id="score"></h2>
+  <p>Ricorda: dietro ogni schermo c'è una persona. Le parole online possono fare male, ma possono anche aiutare.</p>
+  <button onclick="location.reload()">RIGIOCA</button>
+ </section>
+</main>
+
+<footer>CYBER MISSION · THE LAST MESSAGE<br>Rispetta. Proteggi. Intervieni.</footer>
+
+<script>
+const missions=[
+{
+ title:"LA CHAT ESPLOSIVA",
+ question:"Nel gruppo della classe alcuni ragazzi diffondono ripetutamente messaggi umilianti su Alex. Come si definisce questo comportamento?",
+ options:[
+ "Un semplice scherzo",
+ "Cyberbullismo",
+ "Un normale confronto",
+ "Un gioco online"
+ ],
+ correct:1,
+ explanation:"Il cyberbullismo comprende comportamenti aggressivi e offensivi realizzati attraverso strumenti digitali."
+},
+{
+ title:"IL PROFILO FANTASMA",
+ question:"Un ragazzo pubblica una fotografia privata di una compagna senza il suo consenso. Cosa sta facendo?",
+ options:[
+ "Sta rispettando la privacy",
+ "Sta semplicemente condividendo un ricordo",
+ "Sta violando la sua privacy",
+ "Sta facendo pubblicità"
+ ],
+ correct:2,
+ explanation:"Le immagini personali non devono essere diffuse senza il consenso della persona interessata."
+},
+{
+ title:"IL TESTIMONE INVISIBILE",
+ question:"Vedi un compagno preso di mira in una chat. Qual è la scelta migliore?",
+ options:[
+ "Mettere una risata per non essere escluso",
+ "Inoltrare il messaggio ad altri",
+ "Sostenere il compagno e chiedere aiuto a un adulto",
+ "Ignorare sempre tutto"
+ ],
+ correct:2,
+ explanation:"Chi assiste può fare la differenza: sostenere la vittima e coinvolgere un adulto è importante."
+},
+{
+ title:"IL BIVIO DELLE DECISIONI",
+ question:"Ricevi un video offensivo su un compagno. Cosa dovresti fare?",
+ options:[
+ "Condividerlo sui social",
+ "Conservarne le prove, non diffonderlo e chiedere aiuto",
+ "Rispondere con altri insulti",
+ "Creare un meme sulla vittima"
+ ],
+ correct:1,
+ explanation:"Non diffondere il contenuto, conservare le prove e rivolgersi a un adulto di fiducia."
+},
+{
+ title:"IL SALVATAGGIO FINALE",
+ question:"Quale azione aiuta davvero a costruire una comunità digitale sicura?",
+ options:[
+ "Rispettare gli altri e intervenire responsabilmente",
+ "Vendicarsi online",
+ "Nascondere sempre i problemi",
+ "Escludere chi è diverso"
+ ],
+ correct:0,
+ explanation:"Empatia, rispetto e solidarietà sono fondamentali per contrastare il cyberbullismo."
+}
+];
+
+let current=0;
+let selected=-1;
+let score=0;
+let nickname="";
+
+function startGame(){
+ nickname=document.getElementById("nickname").value.trim();
+ if(!nickname){
+  alert("Inserisci un nickname inventato!");
+  return;
+ }
+ document.getElementById("agent").textContent=nickname;
+ document.getElementById("welcome").classList.add("hidden");
+ document.getElementById("game").classList.remove("hidden");
+ showQuestion();
+}
+
+function showQuestion(){
+ const m=missions[current];
+ selected=-1;
+ document.getElementById("mission").textContent="MISSIONE "+String(current+1).padStart(2,"0");
+ document.getElementById("counter").textContent=(current+1)+" / 5";
+ document.getElementById("progress").style.width=(current/5*100)+"%";
+ document.getElementById("title").textContent=m.title;
+ document.getElementById("question").textContent=m.question;
+ document.getElementById("feedback").innerHTML="";
+ document.getElementById("next").classList.add("hidden");
+ document.getElementById("send").classList.remove("hidden");
+ document.getElementById("send").disabled=true;
+ const box=document.getElementById("options");
+ box.innerHTML="";
+ m.options.forEach((option,i)=>{
+  const b=document.createElement("button");
+  b.className="option";
+  b.textContent=String.fromCharCode(65+i)+" · "+option;
+  b.onclick=()=>{
+   selected=i;
+   box.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));
+   b.classList.add("selected");
+   document.getElementById("send").disabled=false;
+  };
+  box.appendChild(b);
+ });
+}
+
+function submitAnswer(){
+ if(selected<0)return;
+ const m=missions[current];
+ const correct=selected===m.correct;
+ if(correct)score++;
+ document.getElementById("options").querySelectorAll("button").forEach(b=>b.disabled=true);
+ document.getElementById("send").classList.add("hidden");
+ document.getElementById("progress").style.width=((current+1)/5*100)+"%";
+ document.getElementById("feedback").innerHTML=
+  "<strong>"+(correct?"✅ RISPOSTA CORRETTA!":"❌ NON È LA RISPOSTA CORRETTA")+"</strong><br><br>"+
+  m.explanation;
+ document.getElementById("next").classList.remove("hidden");
+ document.getElementById("next").textContent=
+  current===4?"SCOPRI IL RISULTATO 🏆":"PROSSIMA MISSIONE ➜";
+}
+
+function nextQuestion(){
+ current++;
+ if(current>=missions.length){
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("finish").classList.remove("hidden");
+  document.getElementById("score").textContent="Risposte corrette: "+score+" / 5";
+ }else{
+  showQuestion();
+ }
+}
+</script>
+</body>
+</html>
